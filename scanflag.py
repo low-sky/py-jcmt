@@ -73,8 +73,8 @@ for file in filenames:
         madval = mad(vals)
         mask[:,receptor] = np.logical_or(\
             np.logical_or((vals-medval)>2*madval,\
-                             (vals-medall)>(4*madall)),
-            (vals>2.0))*(np.isfinite(ratio[:,receptor]))
+                             (vals-medall)>(3*madall)),
+            (vals>1.5))*(np.isfinite(ratio[:,receptor]))
 
     command = 'cp '+file+' /var/tmp/temp_in.sdf'
     print(commands.getoutput(command))
