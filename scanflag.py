@@ -10,15 +10,18 @@ import statsmodels.api as sm
 
 filenames = sys.argv[1:]
 trim = 64
+
+#filenames = np.array(['a20100511_00026_01_0001_blscan.sdf'])
+
+
 def mad(array):
     medarray = np.median(array)
     mad = np.median(np.abs(array-medarray))/0.67
     return mad
 
-
-
 for file in filenames:
     outfile = "_scanflag.".join(file.rsplit(".", 1))
+    print(file)
     print(commands.getoutput('rm temp.*'))
     print(commands.getoutput('rm /var/tmp/*.sdf'))
 # Convert SDF file to a shadow file
@@ -40,7 +43,7 @@ for file in filenames:
     tempfile.close()
     hddict = fits.Header()
     hddict.fromTxtFile('temp.txt')
-    dnu = hddict['IFCHANSP']
+    dnu = np.abs(hddict['IFCHANSP'])
 
     print(dnu,deltat)
     print(tsys.shape)
@@ -62,11 +65,16 @@ for file in filenames:
 #             if madspec>(1.5*arraymad):
 #                 print(scan,receptor)
     mask = np.zeros((data.shape[0],data.shape[1])).astype('b1')
+    medall = np.median(ratio)
+    madall = mad(ratio)
     for receptor in np.arange(data.shape[1]):
         vals = ratio[:,receptor]
         medval = np.median(vals)
         madval = mad(vals)
-        mask[:,receptor] = ((vals-medval)>2*madval)*(np.isfinite(ratio[:,receptor]))
+        mask[:,receptor] = np.logical_or(\
+            np.logical_or((vals-medval)>2*madval,\
+                             (vals-medall)>(4*madall)),
+            (vals>2.0))*(np.isfinite(ratio[:,receptor]))
 
     command = 'cp '+file+' /var/tmp/temp_in.sdf'
     print(commands.getoutput(command))
