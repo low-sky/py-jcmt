@@ -36,9 +36,15 @@ def bary2lsr(hdr):
     shift.  
     
     """
-    Obs_Direction = SkyCoord(hdr['CRVAL1'],hdr['CRVAL2'],frame='fk5',
-                             unit="deg")
-    LSR_Direction = SkyCoord("18h03m50.29s +30d00m16.8s",frame='fk5')
+    if '0.3' in astropy.version.version:
+        Obs_Direction = FK5(hdr['CRVAL1'],hdr['CRVAL2'],$
+                            unit=(u.degree,u.degree))
+        LSR_Direction = FK5("18h03m50.29s +30d00m16.8s")
+    else:
+        Obs_Direction = SkyCoord(hdr['CRVAL1'],hdr['CRVAL2'],frame='fk5',
+                                 unit="deg")
+        LSR_Direction = SkyCoord("18h03m50.29s +30d00m16.8s",frame='fk5')
+
     sep = Obs_Direction.separation(LSR_Direction)
     mag = 20*u.km/u.s*cos(sep.value)
     return(mag)
