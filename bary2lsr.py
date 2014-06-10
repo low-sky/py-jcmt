@@ -5,7 +5,7 @@ import astropy.version
 try:
     from astropy.coordinates import FK5,SkyCoord
 except ImportError:
-    from astropy.coordinates import SkyCoord
+    from astropy.coordinates import FK5
 
 import astropy.units as u
 from math import cos
